@@ -1,10 +1,10 @@
 #!groovy
 
-def DEV_EmailRecipients='amar.tyagi@kelltontech.com'
+def DEV_EmailRecipients='faisal.khan@kelltontech.com'
 def QA_EmailRecipients='pratap.hada@kelltontech.com'
 def MNGR_EmailRecipients='vijay.kumar@kelltontech.com'
 
-def QA_BuildAuthorization='amar.tyagi@kelltontech.com'
+def QA_BuildAuthorization='faisal.khan@kelltontech.com'
 def PROD_BuildAuthorization='vijay.kumar@kelltontech.com'
 
 
@@ -20,7 +20,7 @@ node() {
     echo" branch name "+branchName
     echo" GIT COMMIT name "+env.GIT_COMMIT
     gitCommit = sh(returnStdout: true, script: 'git rev-parse HEAD').trim()
-    echo" valueee "+gitCommit
+    echo" value "+gitCommit
     try {
             stage ('Checkout'){
               checkout scm

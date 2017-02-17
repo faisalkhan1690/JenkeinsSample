@@ -1,4 +1,5 @@
 apply plugin: 'com.android.application'
+apply from: 'versioning.gradle'
 
 android {
     compileSdkVersion 25
@@ -7,14 +8,66 @@ android {
         applicationId "com.example.faisalkhan.jenkeinssample"
         minSdkVersion 19
         targetSdkVersion 25
-        versionCode 1
-        versionName "1.0"
+        versionCode System.getenv("BUILD_NUMBER")  as Integer ?: 0
+        versionName "${VERSION_NAME}"
+        project.version = android.defaultConfig.versionName
+        def APP_VERSION = "APP_VERSION"
+        buildConfigField "String", APP_VERSION, "\"${VERSION_NAME.substring(0,VERSION_NAME.lastIndexOf(".")).toString()}\""
+        multiDexEnabled true
         testInstrumentationRunner "android.support.test.runner.AndroidJUnitRunner"
     }
-    buildTypes {
+
+    signingConfigs {
         release {
-            minifyEnabled false
+            storeFile file("${RELEASE_SIGNING_STORE_KEYSTORE}")
+            storePassword "${RELEASE_SIGNING_STORE_PASSWORD}"
+            keyAlias "${RELEASE_SIGNING_KEY_ALAIS}"
+            keyPassword "${RELEASE_SIGNING_KEY_PASSWORD}"
+        }
+    }
+
+    buildTypes {
+        def BASE_URL = "BASE_URL"
+        def STRING = "String"
+        release {
+            debuggable false
+            minifyEnabled true
+            shrinkResources true
+            buildConfigField STRING, BASE_URL, "${PROD_SERVICE_URL}"
             proguardFiles getDefaultProguardFile('proguard-android.txt'), 'proguard-rules.pro'
+            signingConfig signingConfigs.release
+
+        }
+        stage{
+            debuggable true
+            minifyEnabled false
+            shrinkResources false
+            buildConfigField STRING, BASE_URL, "${STAGE_SERVICE_URL}"
+            proguardFiles getDefaultProguardFile('proguard-android.txt'), 'proguard-rules.pro'
+        }
+        debug{
+            debuggable true
+
+            minifyEnabled false
+            shrinkResources false
+            buildConfigField STRING, BASE_URL, "${QA_SERVICE_URL}"
+            //proguardFiles getDefaultProguardFile('proguard-android.txt'), 'proguard-rules.pro'
+        }
+
+    }
+    applicationVariants.all { variant ->
+        variant.outputs.each { output ->
+            def project = "Jenkinsnew"
+            def SEP = "_"
+            def buildType = variant.variantData.variantConfiguration.buildType.name
+            def version = variant.versionName
+            def version_code=variant.versionCode
+            /*def date = new Date();
+            def formattedDate = date.format('ddMMyy_HHmm')*/
+            //def newApkName = project + SEP + buildType + SEP + version  + SEP + formattedDate + ".apk"
+            def newApkName = project + SEP + buildType + SEP + version + '.' + version_code  + ".apk"
+
+            output.outputFile = new File(output.outputFile.parent, newApkName)
         }
     }
 }
@@ -27,3 +80,5 @@ dependencies {
     compile 'com.android.support:appcompat-v7:25.0.1'
     testCompile 'junit:junit:4.12'
 }
+
+
