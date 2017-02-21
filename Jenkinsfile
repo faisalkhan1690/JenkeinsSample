@@ -19,8 +19,6 @@ node() {
     String branchName = env.BRANCH_NAME
     echo" branch name "+branchName
     echo" GIT COMMIT name "+env.GIT_COMMIT
-    gitCommit = sh(returnStdout: true, script: 'git rev-parse HEAD').trim()
-    echo" value "+gitCommit
     try {
             stage ('Checkout'){
               checkout scm
